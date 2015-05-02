@@ -8,8 +8,8 @@ import subprocess
 
 
 title_regs = [
-    ".+(?=\s-)",  # Any chars before (- ##)
     ".*?((?=\s-\s\d{2})|(?=\dx\d{2}\D)|(?=S\d{2}))",  # Any char before a season-number or standalone episode numbers
+    ".+(?=\s-)",  # Any chars before (- ##)
     ".*?((?=\(\d{4}\))|(?=\D\d{4}(?!x|p|\d)))"  # Any char before a year
 ]
 
