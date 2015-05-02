@@ -23,32 +23,26 @@ def mover():
         newname = tvshowmover.newname_show
         moveshow = tvshowmover.move_tvshow
 
-    for show in yielder(args['SOURCE'], True):
+    for show in yielder(args['SOURCE'], True, args['t']):
         print("Move '" + show + "'")
-        try:
-            print("to '" + args['DESTINATION'] + '/' + newname(show) + "'?")
-        except TypeError:
-            print("New name could not be generated, skipping...\n")
-            continue
+        #try:
+        newfile = newname(show)
+        print("to '" + args['DESTINATION'] + '/' + newfile + "'?")
+        #except TypeError:
+        #    print("New name could not be generated, skipping...\n")
+        #    continue
         reply = ""
         print("""Options:
-        Yes, No, Cancel, Rename""")
+        Yes, No, Cancel""")
         while reply not in ['y', 'n', 'c']:
-            reply = input('Move? (y/n/c/r): ')
+            reply = input('Move? (y/n/c): ')
         print(reply)
         if reply == 'c':
             break
         elif reply == 'y':
-            threading.Thread(target=moveshow(show, args['DESTINATION'])).run()
+            threading.Thread(target=moveshow(show, args['DESTINATION'], newfile)).run()
         elif reply == 'n':
             continue
-        elif reply == 'r':
-            newname = input("Type name of show")
-            season_no = -1
-            if not args['a']:
-                season_no = input("Season number")
-            episode_no = input("Episode number")
-            threading.Thread(target=moveshow(renamed, args['DESTINATION'])).run()
 
 if __name__ == '__main__':
     mover()

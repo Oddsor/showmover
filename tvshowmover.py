@@ -7,6 +7,40 @@ import configparser
 import subprocess
 
 
+title_regs = [
+    ".+(?=\s-)",  # Any chars before (- ##)
+    ".*?((?=\s-\s\d{2})|(?=\dx\d{2}\D)|(?=S\d{2}))",  # Any char before a season-number or standalone episode numbers
+    ".*?((?=\(\d{4}\))|(?=\D\d{4}(?!x|p|\d)))"  # Any char before a year
+]
+
+season_regs = [
+    "(?<=S)\d{1,2}(?!\d)",  # Numbers after an S
+    "\d{1,2}(?=x\d{2}\D)",  # Number before an x followed by no more than two numbers
+]
+
+episode_regs = [
+    "(?<=E)\d{2}(?!\d)",  # Number behind an E (episode)
+    "(?<=x)\d{2}(?!\d)",  # Number behind an x (SxEE format)
+    "(?<!\d)\d{2}(?!\d|\w)"  # Two numbers with no number before and no char behind
+]
+
+year_regs = [
+    "(?<=\s|\()\d{4}(?=\s|\))"
+]
+
+enclose_regs = [
+    "(\[|\().+?(\]|\))"
+]
+
+resolution_regs = [
+    "((?<=\d{4}x)(\d{4}|\d{3}))|\d{3,4}p"
+]
+
+eptitle_regs = [
+    "(?<=\d{2}\s-\s)(\w|\s|,|'|`|-)+"
+]
+
+
 def is_show(filename):
     return len(re.findall("(S[0-9]{2,3}E[0-9]{2,3}|[0-9]{1,2}x[0-9]{2,3}).*(mkv|mp4|avi)",
                           filename, flags=re.IGNORECASE)) > 0

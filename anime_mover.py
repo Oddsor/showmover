@@ -1,3 +1,5 @@
+from tvshowmover import enclose_regs
+
 __author__ = 'Odd Andreas Sørsæther'
 
 import tvshowmover
@@ -37,34 +39,43 @@ def yield_files(directory, subfolders=True, thorough=False):
 
 def newname_show(source):
     filename = os.path.basename(source)
-    if is_anime(filename):
-        showname = get_showname(os.path.splitext(filename)[0])
-        return showname + "\\" + showname + " - " + get_episodenumber(filename) + tvshowmover.get_fileending(filename)
+    basename = os.path.splitext(filename)[0]
+    no_encloses = ""
+    for enclose in tvshowmover.enclose_regs:
+        no_encloses = re.sub(enclose, "", basename).strip()
+    showname = get_value_from_pattern(no_encloses, tvshowmover.title_regs, 'Title')
+    ep_number = get_value_from_pattern(no_encloses, tvshowmover.episode_regs, 'Episode')
+    #ep_title = get_value_from_pattern(no_encloses, tvshowmover.eptitle_regs, 'Ep-title')
+    ep_title = ""
+    return showname + "\\" + showname + " - " + ep_number + (" - " + ep_title if ep_title != "" else "") +\
+        tvshowmover.get_fileending(filename)
 
 
-def get_showname(filename):
-    dottedname = re.sub("(\s|\.)(S[0-9]{2,3}E[0-9]{2,3}|[0-9]{1,2}x[0-9]{2,3}).*", "", filename, flags=re.IGNORECASE)
-    removed_braces = re.sub("\[.*?\]", "", dottedname, flags=re.IGNORECASE)
-    split_dash = re.split("-", removed_braces)
-    if len(split_dash) > 1:
-        del split_dash[-1]
-    trimmed = [x for x in split_dash]
-    return re.sub("[.|_]", " ", ("-".join(trimmed))).strip()
+def get_value_from_pattern(filename, pattern_list, data_type='Title'):
+    filename = re.sub("\.|_", " ", filename)
+    value = ""
+    for pattern in pattern_list:
+        print(str(re.search(pattern, filename, flags=re.IGNORECASE)))
+        if re.search(pattern, filename, flags=re.IGNORECASE) is None:
+            continue
+        suggestion = re.search(pattern, filename, flags=re.IGNORECASE).group(0).strip()
+        print(data_type + ": " + suggestion)
+        command = input("r to retry, s to skip:")
+        if command == 'r':
+            continue
+        elif command == 's':
+            return ""
+        else:
+            value = suggestion
+            break
+    if value == "":
+        value = input("Missing value, add:")
+    return value
 
 
-def get_episodenumber(filename):
-    dottedname = re.sub("(\s|\.)(S[0-9]{2,3}E[0-9]{2,3}|[0-9]{1,2}x[0-9]{2,3}).*", "", filename, flags=re.IGNORECASE)
-    removed_braces = re.sub("\[.*?\]", "", dottedname, flags=re.IGNORECASE)
-    last_numbers = re.findall("\d{2}", removed_braces)
-    if last_numbers:
-        return last_numbers[-1]
-    return False
-
-
-def move_tvshow(source, destination):
-    newpath = os.path.split(newname_show(source))
-    os.makedirs(destination + "\\" + newpath[0], exist_ok=True)
-    shutil.move(source, destination + "\\" + newpath[0] + "\\" + newpath[1])
+def move_tvshow(source, destination, newfile):
+    os.makedirs(destination + "\\" + newfile.split("\\")[0], exist_ok=True)
+    shutil.move(source, destination + "\\" +newfile)
 
 if __name__ == '__main__':
     print('\n'.join([x for x in yield_files('F:/Torrent', True)]))
