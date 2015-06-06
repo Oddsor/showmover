@@ -90,7 +90,7 @@ def get_showfiles(directory, subfolders=True):
     return itemlist
 
 
-def yield_files(directory, subfolders=True):
+def yield_files(directory, subfolders=True, thorough=False):
     entries = os.listdir(directory)
     for item in entries:
         if os.path.isdir(directory + "/" + item) and subfolders:
@@ -159,10 +159,9 @@ def move_tvshows(source, destination):
         shutil.move(showfile, destination + "\\" + newpath[0] + "\\" + newpath[1])
 
 
-def move_tvshow(source, destination):
-    newpath = os.path.split(newname_show(source))
-    os.makedirs(destination + "\\" + newpath[0], exist_ok=True)
-    shutil.move(source, destination + "\\" + newpath[0] + "\\" + newpath[1])
+def move_tvshow(source, destination, newfile):
+    os.makedirs(destination + "\\" + "\\".join(newfile.split("\\")[:-1]), exist_ok=True)
+    shutil.move(source, destination + "\\" + newfile)
 
 
 if __name__ == '__main__':

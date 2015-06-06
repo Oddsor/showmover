@@ -69,13 +69,13 @@ def get_value_from_pattern(filename, pattern_list, data_type='Title'):
             value = suggestion
             break
     if value == "":
-        value = input("Missing value, add:")
+        value = input("Missing value " + data_type + ", add:")
     return value
 
 
 def move_tvshow(source, destination, newfile):
     os.makedirs(destination + "\\" + newfile.split("\\")[0], exist_ok=True)
-    shutil.move(source, destination + "\\" +newfile)
+    shutil.move(source, destination + "\\" + newfile)
 
 if __name__ == '__main__':
     print('\n'.join([x for x in yield_files('F:/Torrent', True)]))
